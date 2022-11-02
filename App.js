@@ -1,11 +1,37 @@
-const express = require('express')
-const app = express()
-const port = 3000
+const express = require("express");
+const cors = require("cors");
+const app = express();
+const database = require("./configs/database/index");
 
-app.get('/', (req, res) => {
-    res.send('Hello World!');
-})
+const corsOpts = {
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
 
-app.listen(port, () => {
-    console.log(`Example app listening at http://localhost:${port}`)
-})
+    allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOpts));
+
+app.use(
+    express.json({
+        limit: "50mb",
+    })
+);
+app.use(
+    express.urlencoded({
+        limit: "50mb",
+        extended: true,
+    })
+);
+
+// database connect
+database.connect();
+
+app.get("/", (req, res) => {
+    res.send("Hello World!");
+});
+
+const PORT = process.env.PORT || 8000;
+app.listen(PORT, () => {
+    console.log(`Example app listening at http://localhost:${PORT}`);
+});
