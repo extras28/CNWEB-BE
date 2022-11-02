@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const database = require("./configs/database/index");
+const accountRouter = require('./routes/accountRouter')
 
 const corsOpts = {
     origin: "*",
@@ -27,9 +28,9 @@ app.use(
 // database connect
 database.connect();
 
-app.get("/", (req, res) => {
-    res.send("Hello World!");
-});
+app.use(accountRouter, function(req, res, next){
+    next();
+})
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
