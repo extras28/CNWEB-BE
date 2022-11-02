@@ -34,5 +34,5 @@ app.use(accountRouter, function(req, res, next){
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
-    console.log(`Example app listening at http://localhost:${PORT}`);
+    console.log(`Your app listening at http://localhost:${PORT}`);
 });
