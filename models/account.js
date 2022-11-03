@@ -18,4 +18,6 @@ const Account = new mongoose.Schema({
     expirationDateToken: Date,
     resetPasswordToken: String,
     expirationDateResetPasswordToken: String,
+}, {
+    timestamps
 })
