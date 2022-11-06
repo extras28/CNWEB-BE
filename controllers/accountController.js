@@ -1,9 +1,6 @@
-const Account = require('../models/account');
-const {
-    generateRandomStr,
-    sha256
-} = require('../utils');
-const utils = require('../utils');
+const Account = require("../models/account");
+const { generateRandomStr, sha256 } = require("../utils");
+const utils = require("../utils");
 const moment = require("moment");
 
 const accountController = {
@@ -11,15 +8,15 @@ const accountController = {
         try {
             //check Account existent
             let account = await Account.findOne({
-                email: req.body.email
+                email: req.body.email,
             });
 
             if (account) {
                 return res.send({
-                    result: 'failed',
-                    message: 'Tài khoản đã tồn tại',
-                })
-            };
+                    result: "failed",
+                    message: "Tài khoản đã tồn tại",
+                });
+            }
 
             const hashed = await utils.sha256(req.body.password);
 
@@ -27,38 +24,37 @@ const accountController = {
                 fullname: req.body.fullname,
                 email: req.body.email,
                 password: hashed,
-                accessToken: '',
+                accessToken: "",
                 expirationDateToken: null,
-                gender: 'UNKNOWN',
+                gender: "UNKNOWN",
                 dob: null,
-                avatar: '',
-                address: '',
-                phone: '',
+                avatar: "",
+                address: "",
+                phone: "",
             });
 
             await newAccount.save();
 
             return res.send({
-                result: 'success',
+                result: "success",
                 account: newAccount,
             });
         } catch (err) {
-
             res.status(500).send({
-                result: 'failed',
-                message: err
+                result: "failed",
+                message: err,
             });
         }
     },
     signIn: async (req, res) => {
         try {
             const account = await Account.findOne({
-                email: req.body.email
+                email: req.body.email,
             });
 
             if (!account) {
                 return res.status(404).json({
-                    result: 'success',
+                    result: "success",
                     message: "Email không đúng",
                 });
             }
@@ -70,15 +66,13 @@ const accountController = {
                 return res.status(404).json({
                     result: "failed",
                     message: "Sai mật khẩu",
-                })
+                });
             }
 
             if (
                 !account.accessToken ||
-                moment(account.expirationDateToken).diff(moment.now()) <
-                0
+                moment(account.expirationDateToken).diff(moment.now()) < 0
             ) {
-
                 var accessToken = generateRandomStr(32);
                 var expirationDate = new Date();
                 var time = expirationDate.getTime();
@@ -94,14 +88,13 @@ const accountController = {
                 });
             }
             const responseAccount = await Account.findOne({
-                _id: account._id
-            })
+                _id: account._id,
+            });
 
             return res.send({
                 result: "success",
                 account: responseAccount.toJSON(),
             });
-
         } catch (err) {
             res.status(500).json({
                 result: "failed",
@@ -111,9 +104,9 @@ const accountController = {
     },
     signOut: async (req, res) => {
         try {
-            const accessToken = req.headers.authorization.split(' ')[1];
+            const accessToken = req.headers.authorization.split(" ")[1];
             const account = await Account.findOne({
-                accessToken: accessToken
+                accessToken: accessToken,
             });
             await account.updateOne({
                 accessToken: null,
@@ -121,8 +114,8 @@ const accountController = {
             });
 
             const responseAccount = await Account.findOne({
-                _id: account._id
-            })
+                _id: account._id,
+            });
             res.send({
                 result: "success",
             });
@@ -133,15 +126,43 @@ const accountController = {
             });
         }
     },
-    requestToResetPassword: async (req, res) => {
-
-    },
-    resetPassword: async (req, res) => {
-
-    },
+    requestToResetPassword: async (req, res) => {},
+    resetPassword: async (req, res) => {},
     changePassword: async (req, res) => {
+        try {
+            const accessToken = req.headers.authorization.split(" ")[1];
+            const account = await Account.findOne({
+                accessToken: accessToken,
+            });
+            const password = await sha256(req.body.password);
+            const newPassword = await sha256(req.body.newPassword);
 
-    }
+            if (account) {
+                if (password === account.password) {
+                    await Account.findByIdAndUpdate(account.id, {
+                        password: newPassword,
+                    });
+                    return res.send({
+                        result: "success",
+                        message: "Đổi mật khẩu thành công",
+                    });
+                }
+                return res.send({
+                    result: "failed",
+                    message: "Mật khẩu cũ không chính xác",
+                });
+            }
+            return res.send({
+                result: "faled",
+                message: "Sai email",
+            });
+        } catch (err) {
+            res.send({
+                result: "faled",
+                message: err,
+            });
+        }
+    },
 };
 
 module.exports = accountController;
