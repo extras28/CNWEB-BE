@@ -1,6 +1,7 @@
 const moment = require("moment");
 const _ = require("lodash");
 const crypto = require("crypto");
+const sha256 = require('js-sha256');
 
 module.exports = {
     /**
@@ -40,5 +41,9 @@ module.exports = {
      */
     generateRandomStr(size = 20) {
         return crypto.randomBytes(size).toString("hex");
+    },
+    // sha256
+    sha256: (text) => {
+        return sha256(text);
     },
 };
