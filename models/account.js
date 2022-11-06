@@ -19,5 +19,7 @@ const Account = new mongoose.Schema({
     resetPasswordToken: String,
     expirationDateResetPasswordToken: String,
 }, {
-    timestamps
-})
+    timestamps: true,
+});
+
+module.exports = mongoose.model('Account', Account);
