@@ -1,7 +1,11 @@
 const Account = require("../models/account");
-const { generateRandomStr, sha256 } = require("../utils");
+const {
+    generateRandomStr,
+    sha256
+} = require("../utils");
 const utils = require("../utils");
 const moment = require("moment");
+const sendEmail = require("../utils/nodeMailer");
 
 const accountController = {
     signUp: async (req, res) => {
@@ -126,8 +130,103 @@ const accountController = {
             });
         }
     },
-    requestToResetPassword: async (req, res) => {},
-    resetPassword: async (req, res) => {},
+    requestToResetPassword: async (req, res) => {
+        try {
+            let {
+                email
+            } = req.body;
+
+            let account = await Account.findOne({
+                email: email
+            });
+
+            if (!account) {
+                return res.send({
+                    result: 'failed',
+                    message: 'email không hợp lệ'
+                })
+            };
+            var random = 100000 + Math.random() * 900000;
+            var plainResetPasswordToken = Math.floor(random);
+
+            const hashedResetPasswordToken = await utils.sha256(plainResetPasswordToken.toString());
+
+            var expirationDate = new Date();
+            var time = expirationDate.getTime();
+            var time1 = time + 5 * 60 * 1000;
+            var setTime = expirationDate.setTime(time1);
+            var expirationDateStr = moment(setTime)
+                .format("YYYY-MM-DD HH:mm:ss")
+                .toString();
+
+            await Account.findOneAndUpdate({
+                email: email
+            }, {
+                resetPasswordToken: hashedResetPasswordToken,
+                expirationDateResetPasswordToken: expirationDateStr
+            });
+
+
+
+            res.send({
+                result: 'success',
+                expirationDate: moment(expirationDate).toDate(),
+            });
+
+            await sendEmail(email, 'CodeHelper your reset password code', plainResetPasswordToken);
+        } catch (error) {
+            res.send({
+                result: 'failed',
+                message: error
+            })
+        }
+    },
+    resetPassword: async (req, res) => {
+        try {
+            let {
+                email,
+                resetPasswordToken,
+                newPassword
+            } = req.body;
+
+            let account = await Account.findOne({
+                email: email
+            });
+
+            const hashedResetPasswordToken = utils.sha256(resetPasswordToken);
+
+            const hashedPassword = utils.sha256(newPassword);
+
+            if (!account) {
+                return res.send({
+                    result: 'failed',
+                    message: 'Đổi mật khẩu không thành công'
+                })
+            }
+
+            if (account.resetPasswordToken === hashedResetPasswordToken) {
+                await Account.findOneAndUpdate({
+                    email: email
+                }, {
+                    resetPasswordToken: null,
+                    expirationDateResetPasswordToken: null,
+                    password: hashedPassword,
+                })
+                return res.send({
+                    result: 'success',
+                    message: 'Thay đổi mật khẩu thành công'
+                })
+            }
+
+
+
+        } catch (error) {
+            res.send({
+                result: 'failed',
+                message: error
+            })
+        }
+    },
     changePassword: async (req, res) => {
         try {
             const accessToken = req.headers.authorization.split(" ")[1];
