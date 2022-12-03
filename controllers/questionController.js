@@ -75,7 +75,7 @@ const questionController = {
             Question.find({
                     title:{$regex: '.*' + q + '.*'},
                     contentTextProblem: {$regex: '.*' + q + '.*'},
-                    contentTextExpect: {$regex: '.*' + q + '.*'}
+                    contentTextExpect: {$regex: '.*' + q + '.*'},
                 })
                 .skip(limit * page - limit)
                 .limit(limit)
