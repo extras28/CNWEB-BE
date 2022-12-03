@@ -2,9 +2,10 @@
   "name": "group8-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "App.js",
+  "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js",
+    "start": "node index.js",
+    "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -21,16 +22,19 @@
   },
   "homepage": "https://gitlab.com/soict-it4409/20221/group8/group8-backend#readme",
   "dependencies": {
+    "cloudinary": "^1.32.0",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
+    "express-fileupload": "^1.4.0",
     "js-sha256": "^0.9.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "mongoose": "^6.7.0",
-    "nodemailer": "^6.8.0",
-    "nodemon": "^2.0.20"
+    "nodemailer": "^6.8.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
 }
