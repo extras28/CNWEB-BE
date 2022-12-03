@@ -15,9 +15,12 @@ router.post('/api/v1/account/sign-out',  accountController.signOut);
 router.put('/api/v1/account/change-password', accountController.changePassword);
 
 //request to reset password
-router.post('/api/v1/account/request-reset-password', accountController.requestToResetPassword)
+router.post('/api/v1/account/request-reset-password', accountController.requestToResetPassword);
 
 //reset password
 router.post('/api/v1/account/reset-password', accountController.resetPassword);
+
+//find account
+router.get('/api/v1/account/find', accountController.find);
 
 module.exports = router;
