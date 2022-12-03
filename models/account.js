@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const Account = new mongoose.Schema({
     fullname: String,
+    teamId: String,
     email: {
         type: String,
         require: true,
@@ -13,7 +14,6 @@ const Account = new mongoose.Schema({
     dob: String,
     gender: String,
     address: String,
-    personalIdentificationNumber: String,
     accessToken: String,
     expirationDateToken: Date,
     resetPasswordToken: String,
