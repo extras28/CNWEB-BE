@@ -267,7 +267,17 @@ const accountController = {
         try {
             Account
                 .find({
-                    fullname: { $regex: `.*${q}.*`, $options: "i" },
+                    $or: [{
+                        fullname: {
+                            $regex: `.*${q}.*`,
+                            $options: "i"
+                        }
+                    }, {
+                        email: {
+                            $regex: `.*${q}.*`,
+                            $options: "i"
+                        }
+                    }]
                 })
                 .skip(limit * page - limit)
                 .limit(limit)

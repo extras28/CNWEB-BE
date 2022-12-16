@@ -47,7 +47,7 @@ const questionController = {
 
             const newQuestion = new Question({
                 ...question,
-                accountId: account._id,
+                account: account._id,
                 contentImageProblem: contentImageProblem,
                 contentImageExpect: contentImageExpect,
             })
@@ -70,28 +70,31 @@ const questionController = {
         q = q ?? "";
         try {
             Question.find({
-                title: { $regex: `.*${q}.*`, $options: "i" },
-            })
-                .skip(limit * page - limit)
-                .limit(limit)
-                .exec((err, questions) => {
-                    Question.countDocuments((err, count) => {
-                        if (err) {
-                            return res.send({
-                                result: "failed",
-                                message: err,
-                            })
-                        } else {
-                            return res.send({
-                                result: "success",
-                                questions: questions,
-                                page: page,
-                                limit: limit,
-                                total: count,
-                            })
-                        }
-                    })
+                    title: { $regex: `.*${q}.*`, $options: "i" },
                 })
+                .populate({path: 'account', select: 'avatar fullname'}).then((questions)=>{
+                    return res.send(questions)
+                })
+                // .skip(limit * page - limit)
+                // .limit(limit)
+                // .exec((err, questions) => {
+                //     Question.countDocuments((err, count) => {
+                //         if (err) {
+                //             return res.send({
+                //                 result: "failed",
+                //                 message: err,
+                //             })
+                //         } else {
+                //             return res.send({
+                //                 result: "success",
+                //                 questions: questions,
+                //                 page: page,
+                //                 limit: limit,
+                //                 total: count,
+                //             })
+                //         }
+                //     })
+                // })
         } catch (error) {
             res.send({
                 result: "failed",

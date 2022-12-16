@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const Question = new mongoose.Schema({
-    accountId: String,
+    account: {type: mongoose.Schema.Types.ObjectId, ref: 'account'},
     tagId: String,
     title: String,
     contentTextProblem: String,
@@ -15,4 +15,4 @@ const Question = new mongoose.Schema({
     timestamps: true,
 });
 
-module.exports = mongoose.model('Question', Question);
+module.exports = mongoose.model('question', Question);
