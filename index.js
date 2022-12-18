@@ -4,7 +4,7 @@ const app = express()
 const database = require("./configs/database/index")
 const accountRouter = require("./routes/accountRouter")
 const questionRouter = require("./routes/questionRouter")
-const fileUpload = require("express-fileupload")
+// const fileUpload = require("express-fileupload")
 const bodyParser = require("body-parser")
 
 const corsOpts = {
@@ -16,15 +16,15 @@ const corsOpts = {
 
 app.use(cors(corsOpts))
 
-app.use(
-    fileUpload({
-        createParentPath: true,
-        useTempFiles: true,
-        uriDecodeFileNames: true,
-        defParamCharset: "utf8",
-        abortOnLimit: true,
-    })
-)
+// app.use(
+//     fileUpload({
+//         createParentPath: true,
+//         useTempFiles: true,
+//         uriDecodeFileNames: true,
+//         defParamCharset: "utf8",
+//         abortOnLimit: true,
+//     })
+// )
 // parse requests of content-type - application/json
 app.use(express.json())
 // parse requests of content-type - application/x-www-form-urlencoded
@@ -33,15 +33,10 @@ app.use(
         extended: true,
     })
 )
-app.use(
-    bodyParser.json({
-        limit: "128mb",
-    })
-)
+app.use(bodyParser.json())
 app.use(
     bodyParser.urlencoded({
         extended: true,
-        limit: "128mb",
     })
 )
 
@@ -56,10 +51,10 @@ app.use(questionRouter, function (req, res, next) {
     next()
 })
 
-app.use('/', (req, res) => {
+app.use("/", (req, res) => {
     res.status(200).json({
         result: "success",
-        message: "Deploy succeed <3"
+        message: "Deploy succeed <3",
     })
 })
 

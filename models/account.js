@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const Account = new mongoose.Schema({
+const account = new mongoose.Schema({
     fullname: String,
     teamId: String,
     email: {
@@ -22,4 +22,4 @@ const Account = new mongoose.Schema({
     timestamps: true,
 });
 
-module.exports = mongoose.model('account', Account);
+module.exports = mongoose.model('account', account);
