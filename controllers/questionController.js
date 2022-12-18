@@ -8,12 +8,6 @@ const questionController = {
     createQuestion: async (req, res) => {
         try {
             const accessToken = req.headers.authorization.split(" ")[1]
-            // const question = req.body
-            //  console.log(req.body);
-            //  console.log(req.files);
-            //  return res.status(200).json(req.files)
-            // let contentImageProblem = ""
-            // let contentImageExpect = ""
             const reqAccount = await account.findOne({
                 accessToken: accessToken,
             })
@@ -24,31 +18,6 @@ const questionController = {
                     message: "Không có quyền truy cập",
                 })
             }
-
-            // if (req.files) {
-            //     if (req.files.contentImageProblem) {
-            // let uploadcontentImageProblemResponse =
-            //     await cloudinary.uploader.upload(
-            //         req.file.path,
-            //         {
-            //             upload_preset: "WebTechnology",
-            //         }
-            //     )
-            //         contentImageProblem =
-            //             uploadcontentImageProblemResponse.secure_url
-            //     }
-            //     if (req.files.contentImageExpect) {
-            //         let uploadcontentImageExpectResponse =
-            //             await cloudinary.uploader.upload(
-            //                 req.files.contentImageExpect.tempFilePath,
-            //                 {
-            //                     upload_preset: "WebTechnology",
-            //                 }
-            //             )
-            //         contentImageExpect =
-            //             uploadcontentImageExpectResponse.secure_url
-            //     }
-            // }
 
             const newQuestion = new Question({
                 ...req.body,
