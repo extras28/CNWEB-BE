@@ -312,6 +312,17 @@ const accountController = {
             })
         }
     },
+
+    update: async (req, res) => {
+        try {
+            const accessToken = req.headers.authorization.split(" ")[1]
+            const account = await Account.findOne({
+                accessToken: accessToken,
+            })
+        } catch (error) {
+
+        }
+    }
 }
 
 module.exports = accountController

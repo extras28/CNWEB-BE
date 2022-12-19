@@ -1,26 +1,32 @@
-const express = require('express');
-const router = express.Router();
-const accountController = require('../controllers/accountController')
+const express = require("express")
+const router = express.Router()
+const accountController = require("../controllers/accountController")
 
 //sign up
-router.post('/api/v1/account/sign-up', accountController.signUp);
+router.post("/api/v1/account/sign-up", accountController.signUp)
 
 //sign in
-router.post('/api/v1/account/sign-in', accountController.signIn);
+router.post("/api/v1/account/sign-in", accountController.signIn)
 
 //sign out
-router.post('/api/v1/account/sign-out',  accountController.signOut);
+router.post("/api/v1/account/sign-out", accountController.signOut)
 
 //change password
-router.put('/api/v1/account/change-password', accountController.changePassword);
+router.put("/api/v1/account/change-password", accountController.changePassword)
 
 //request to reset password
-router.post('/api/v1/account/request-reset-password', accountController.requestToResetPassword);
+router.post(
+    "/api/v1/account/request-reset-password",
+    accountController.requestToResetPassword
+)
 
 //reset password
-router.post('/api/v1/account/reset-password', accountController.resetPassword);
+router.post("/api/v1/account/reset-password", accountController.resetPassword)
 
 //find account
-router.get('/api/v1/account/find', accountController.find);
+router.get("/api/v1/account/find", accountController.find)
 
-module.exports = router;
+//update account
+router.put("/api/v1/account/update", accountController.update)
+
+module.exports = router

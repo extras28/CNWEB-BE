@@ -1,8 +1,8 @@
 const Question = require("../models/question")
-// const account = require("../models/account")
+const account = require("../models/account")
 const { isObjectEmpty } = require("../utils")
 const { cloudinary } = require("../middlewares/uploadCloud")
-const account = require("../models/account")
+// const account = require("../models/account")
 
 const questionController = {
     createQuestion: async (req, res) => {
@@ -22,8 +22,8 @@ const questionController = {
             const newQuestion = new Question({
                 ...req.body,
                 account: reqAccount._id,
-                contentImageProblem: req.files.contentImageProblem[0].path,
-                contentImageExpect: req.files.contentImageExpect[0].path,
+                contentImageProblem: req.files?.contentImageProblem[0]?.path,
+                contentImageExpect: req.files?.contentImageExpect[0]?.path,
             })
 
             await newQuestion.save()
@@ -34,7 +34,7 @@ const questionController = {
         } catch (error) {
             res.send({
                 result: "failed",
-                message: error,
+                message: error.message,
             })
         }
     },
@@ -45,8 +45,9 @@ const questionController = {
         page = parseInt(req.query.page) - 1
         limit = parseInt(req.query.limit)
         try {
-            var query = {title: { $regex: `.*${q}.*`, $options: "i" }}
+            var query = { title: { $regex: `.*${q}.*`, $options: "i" } }
             Question.find(query)
+                .populate({ path: "account", select: "avatar fullname" })
                 .sort({ update_at: -1 })
                 .skip(page * limit) //Notice here
                 .limit(limit)
