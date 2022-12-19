@@ -40,36 +40,34 @@ const questionController = {
     },
 
     find: async (req, res) => {
-        let { q, page, limit } = req.query
+        let { q } = req.query
         q = q ?? ""
+        page = parseInt(req.query.page) - 1
+        limit = parseInt(req.query.limit)
         try {
-            Question.find({
-                title: { $regex: `.*${q}.*`, $options: "i" },
-            })
-                .populate({ path: "account", select: "avatar fullname" })
-                .then((questions) => {
-                    return res.send(questions)
+            var query = {title: { $regex: `.*${q}.*`, $options: "i" }}
+            Question.find(query)
+                .sort({ update_at: -1 })
+                .skip(page * limit) //Notice here
+                .limit(limit)
+                .exec((err, doc) => {
+                    if (err) {
+                        return res.json(err)
+                    }
+                    Question.estimatedDocumentCount(query).exec(
+                        (count_error, count) => {
+                            if (err) {
+                                return res.json(count_error)
+                            }
+                            return res.json({
+                                total: count,
+                                page: page + 1,
+                                limit: doc.length,
+                                questions: doc,
+                            })
+                        }
+                    )
                 })
-            // .skip(limit * page - limit)
-            // .limit(limit)
-            // .exec((err, questions) => {
-            //     Question.countDocuments((err, count) => {
-            //         if (err) {
-            //             return res.send({
-            //                 result: "failed",
-            //                 message: err,
-            //             })
-            //         } else {
-            //             return res.send({
-            //                 result: "success",
-            //                 questions: questions,
-            //                 page: page,
-            //                 limit: limit,
-            //                 total: count,
-            //             })
-            //         }
-            //     })
-            // })
         } catch (error) {
             res.send({
                 result: "failed",
