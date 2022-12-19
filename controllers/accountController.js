@@ -262,44 +262,55 @@ const accountController = {
     },
 
     find: async (req, res) => {
-        let { q, page, limit } = req.query;
-        q = q ?? "";
+        let { q } = req.query
+        q = q ?? ""
+        page = parseInt(req.query.page) - 1
+        limit = parseInt(req.query.limit)
         try {
-            Account
-                .find({
-                    $or: [{
+            var query = {
+                $or: [
+                    {
                         fullname: {
                             $regex: `.*${q}.*`,
-                            $options: "i"
-                        }
-                    }, {
+                            $options: "i",
+                        },
+                    },
+                    {
                         email: {
                             $regex: `.*${q}.*`,
-                            $options: "i"
-                        }
-                    }]
-                })
-                .skip(limit * page - limit)
+                            $options: "i",
+                        },
+                    },
+                ],
+            }
+            Account.find(query)
+                .sort({ update_at: -1 })
+                .skip(page * limit) //Notice here
                 .limit(limit)
-                .exec((err, accounts) => {
-                    Account.countDocuments((err, count) => {
-                        if (err) {
-                            return res.send({
-                                result: "failed",
-                                message: err,
-                            })
-                        } else {
-                            return res.send({
-                                result: "success",
-                                page: page,
-                                limit: limit,
+                .exec((err, doc) => {
+                    if (err) {
+                        return res.json(err)
+                    }
+                    Account.estimatedDocumentCount(query).exec(
+                        (count_error, count) => {
+                            if (err) {
+                                return res.json(count_error)
+                            }
+                            return res.json({
                                 total: count,
-                                accounts: accounts,
+                                page: page + 1,
+                                limit: doc.length,
+                                accounts: doc,
                             })
                         }
-                    })
+                    )
                 })
-        } catch (error) {}
+        } catch (error) {
+            res.send({
+                result: "failed",
+                message: error,
+            })
+        }
     },
 }
 
