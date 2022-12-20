@@ -12,6 +12,7 @@ const account = new mongoose.Schema({
     accountLevel: String,
     avatar: String,
     dob: String,
+    phone: String,
     gender: String,
     address: String,
     accessToken: String,
