@@ -40,8 +40,8 @@ const questionController = {
                     like: 0,
                     dislike: 0,
                     numberOfView: 0,
-                },
-                { $push: { tagIds: { $each: tagIds } } }
+                }
+                // { $push: { tagIds: { $each: tagIds } } }
             );
 
             await newQuestion.save();

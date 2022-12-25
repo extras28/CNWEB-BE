@@ -19,9 +19,7 @@ const Question = new mongoose.Schema(
         like: Number,
         dislike: Number,
     },
-    {
-        timestamps: true,
-    }
+    { timestamps: true }
 );
 
 module.exports = mongoose.model("question", Question);
