@@ -3,12 +3,18 @@ const mongoose = require("mongoose");
 const Question = new mongoose.Schema(
     {
         account: { type: mongoose.Schema.Types.ObjectId, ref: "account" },
-        tagId: String,
+        tagIds: [{ type: mongoose.Schema.Types.ObjectId, ref: "tag" }],
         title: String,
         contentTextProblem: String,
         contentTextExpect: String,
-        contentImageProblem: String,
-        contentImageExpect: String,
+        contentImageProblem: {
+            path: String,
+            filename: String,
+        },
+        contentImageExpect: {
+            path: String,
+            filename: String,
+        },
         numberOfView: Number,
         like: Number,
         dislike: Number,

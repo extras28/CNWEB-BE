@@ -1,7 +1,7 @@
-const express = require("express")
-const questionController = require("../controllers/questionController")
-const uploadCloud = require("../middlewares/uploadCloud")
-const router = express.Router()
+const express = require("express");
+const questionController = require("../controllers/questionController");
+const uploadCloud = require("../middlewares/uploadCloud");
+const router = express.Router();
 
 // create question
 router.post(
@@ -17,9 +17,12 @@ router.post(
         },
     ]),
     questionController.createQuestion
-)
+);
 
 // get question
-router.get("/api/v1/question/find", questionController.find)
+router.get("/api/v1/question/find", questionController.find);
 
-module.exports = router
+// delete question
+router.delete("/api/v1/question/delete", questionController.delete);
+
+module.exports = router;

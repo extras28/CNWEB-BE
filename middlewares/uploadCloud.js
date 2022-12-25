@@ -1,7 +1,7 @@
-const cloudinary = require('cloudinary').v2;
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const multer = require('multer');
-require('dotenv').config()
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const multer = require("multer");
+require("dotenv").config();
 
 cloudinary.config({
     cloud_name: "dc7pxknio",
@@ -11,10 +11,13 @@ cloudinary.config({
 
 const storage = new CloudinaryStorage({
     cloudinary,
-    allowedFormats: ['jpg', 'png'],
+    allowedFormats: ["jpg", "png"],
     params: {
-        folder: 'WebTechnology'
-    }
+        folder: "WebTechnology",
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname);
+    },
 });
 
 const uploadCloud = multer({ storage });

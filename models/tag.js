@@ -3,10 +3,11 @@ const mongoose = require("mongoose");
 const tag = new mongoose.Schema(
     {
         name: String,
-        numberOfQuestion: String,
-        questionPerWeek: String,
-        questionThisDay: String,
-        accountId: { type: mongoose.Schema.Types.ObjectId, ref: "account" },
+        description: String,
+        numberOfQuestion: Number,
+        questionPerWeek: Number,
+        questionThisDay: Number,
+        account: { type: mongoose.Schema.Types.ObjectId, ref: "account" },
     },
     { timestamps: true }
 );
