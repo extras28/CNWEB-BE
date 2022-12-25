@@ -86,7 +86,7 @@ const questionController = {
                             return res.json({
                                 total: count,
                                 page: page + 1,
-                                limit: doc.length,
+                                limit: limit,
                                 questions: doc,
                             });
                         }
