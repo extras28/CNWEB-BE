@@ -327,14 +327,19 @@ const accountController = {
                     message: "Không đủ quyền truy cập",
                 });
             }
-
-            await Account.findByIdAndUpdate(account._id, {
-                ...req.body,
-                avatar: {
-                    path: req.file.path,
-                    filename: req.file.filename,
-                },
-            });
+            if (req.file) {
+                await Account.findByIdAndUpdate(account._id, {
+                    ...req.body,
+                    avatar: {
+                        path: req.file.path,
+                        filename: req.file.filename,
+                    },
+                });
+            } else {
+                await Account.findByIdAndUpdate(account._id, {
+                    ...req.body,
+                });
+            }
 
             return res.status(200).json({
                 result: "success",
