@@ -150,33 +150,25 @@ const accountController = {
                 plainResetPasswordToken.toString()
             );
 
-            var expirationDate = new Date();
-            var time = expirationDate.getTime();
-            var time1 = time + 5 * 60 * 1000;
-            var setTime = expirationDate.setTime(time1);
-            var expirationDateStr = moment(setTime)
-                .format("YYYY-MM-DD HH:mm:ss")
-                .toString();
+            const newPassword = await utils.sha256(hashedResetPasswordToken);
 
             await Account.findOneAndUpdate(
                 {
                     email: email,
                 },
                 {
-                    resetPasswordToken: hashedResetPasswordToken,
-                    expirationDateResetPasswordToken: expirationDateStr,
+                    password: newPassword,
                 }
             );
 
             res.send({
                 result: "success",
-                expirationDate: moment(expirationDate).toDate(),
             });
 
             await sendEmail(
                 email,
                 "CodeHelper your reset password code",
-                plainResetPasswordToken
+                `Your new password: ${plainResetPasswordToken}`
             );
         } catch (error) {
             res.send({
