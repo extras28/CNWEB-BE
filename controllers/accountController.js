@@ -34,6 +34,7 @@ const accountController = {
                 address: "",
                 phone: "",
                 job: req.body.job,
+                accountLevel: "USER",
             });
 
             await newAccount.save();
