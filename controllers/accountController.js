@@ -162,15 +162,15 @@ const accountController = {
                 }
             );
 
-            res.send({
-                result: "success",
-            });
-
             await sendEmail(
                 email,
                 "CodeHelper your reset password code",
                 `Your new password: ${plainResetPasswordToken}`
             );
+            
+            res.send({
+                result: "success",
+            });
         } catch (error) {
             res.send({
                 result: "failed",
