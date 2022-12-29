@@ -1,8 +1,8 @@
 const Question = require("../models/question");
 const account = require("../models/account");
 const { isObjectEmpty } = require("../utils");
-const { cloudinary } = require("../middlewares/uploadCloud");
 const deleteImageCloud = require("../middlewares/deleteImageCloud");
+const ObjectId = require("mongodb").ObjectId;
 // const account = require("../models/account")
 
 const questionController = {
@@ -10,7 +10,13 @@ const questionController = {
         try {
             const { title, contentTextProblem, contentTextExpect, tagIds } =
                 req.body;
-            // return console.log(tagIds);
+            // return console.log(
+            //     JSON.parse(tagIds).map((item) => {
+            //         convertItem = new ObjectId(item);
+            //         return convertItem;
+            //     })
+            // );
+
             const accessToken = req.headers.authorization.split(" ")[1];
             const reqAccount = await account.findOne({
                 accessToken: accessToken,
@@ -50,10 +56,10 @@ const questionController = {
                 question: newQuestion,
             });
         } catch (error) {
-            deleteImageCloud([
-                req.files?.contentImageProblem[0]?.filename,
-                req.files?.contentImageExpect[0]?.filename,
-            ]);
+            // deleteImageCloud([
+            //     req.files?.contentImageProblem[0]?.filename,
+            //     req.files?.contentImageExpect[0]?.filename,
+            // ]);
             res.send({
                 result: "failed",
                 message: error.message,

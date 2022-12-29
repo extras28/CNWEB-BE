@@ -30,7 +30,8 @@ const tagController = {
             }
 
             const newTag = new tag({
-                ...req.body,
+                name: name,
+                description: description,
                 numberOfQuestion: 0,
                 questionPerWeek: 0,
                 questionThisDay: 0,
@@ -89,7 +90,83 @@ const tagController = {
                 message: error.message,
             });
         }
-    }
+    },
+
+    delete: async (req, res) => {
+        try {
+            const { _id } = req.query;
+            const accessToken = req.headers.authorization.split(" ")[1];
+            const reqAccount = await account.findOne({
+                accessToken: accessToken,
+            });
+
+            const thisTag = await tag.findById(_id);
+
+            if (!reqAccount || !reqAccount._id.equals(thisTag.account)) {
+                return res.send({
+                    result: "failed",
+                    message: "Không có quyền thực thi",
+                });
+            }
+
+            await thisTag.delete();
+            return res.status(200).json({
+                result: "success",
+            });
+        } catch (error) {
+            res.send({
+                result: "failed",
+                message: error.message,
+            });
+        }
+    },
+
+    update: async (req, res) => {
+        try {
+            const { name, description, _id } = req.body;
+            const accessToken = req.headers.authorization.split(" ")[1];
+            const reqAccount = await account.findOne({
+                accessToken: accessToken,
+            });
+            const thisTag = await tag.findById(_id);
+
+            if (!reqAccount || !reqAccount._id.equals(thisTag.account)) {
+                return res.send({
+                    result: "failed",
+                    message: "Không có quyền thực thi",
+                });
+            }
+
+            tag.findOneAndUpdate(
+                { _id: _id },
+                {
+                    $set: {
+                        name: name,
+                        description: description,
+                    },
+                },
+                { new: true },
+                (err, doc) => {
+                    if (err) {
+                        return res.send({
+                            result: "failed",
+                            message: err,
+                        });
+                    } else {
+                        return res.status(200).json({
+                            result: "success",
+                            tag: doc,
+                        });
+                    }
+                }
+            )
+        } catch (error) {
+            res.send({
+                result: "failed",
+                message: error.message,
+            });
+        }
+    },
 };
 
 module.exports = tagController;

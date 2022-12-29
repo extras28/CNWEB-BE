@@ -1,13 +1,21 @@
 const express = require("express");
 const cors = require("cors");
-const app = express();
+var multer = require('multer');
+var upload = multer();
 const database = require("./configs/database/index");
 const accountRouter = require("./routes/accountRouter");
 const questionRouter = require("./routes/questionRouter");
 const tagRouter = require("./routes/tagRouter");
 // const fileUpload = require("express-fileupload")
 const bodyParser = require("body-parser");
+const app = express();
 
+// app.use(bodyParser.json());
+// app.use(
+//     bodyParser.urlencoded({
+//         extended: true,
+//     })
+// );
 const corsOpts = {
     origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE"],
@@ -17,15 +25,6 @@ const corsOpts = {
 
 app.use(cors(corsOpts));
 
-// app.use(
-//     fileUpload({
-//         createParentPath: true,
-//         useTempFiles: true,
-//         uriDecodeFileNames: true,
-//         defParamCharset: "utf8",
-//         abortOnLimit: true,
-//     })
-// )
 // parse requests of content-type - application/json
 app.use(express.json());
 // parse requests of content-type - application/x-www-form-urlencoded
@@ -34,12 +33,14 @@ app.use(
         extended: true,
     })
 );
-app.use(bodyParser.json());
-app.use(
-    bodyParser.urlencoded({
-        extended: true,
-    })
-);
+
+app.use(questionRouter, function (req, res, next) {
+    next();
+});
+
+// for parsing multipart/form-data
+app.use(upload.array());
+app.use(express.static("public"));
 
 // database connect
 database.connect();
@@ -48,9 +49,6 @@ app.use(accountRouter, function (req, res, next) {
     next();
 });
 
-app.use(questionRouter, function (req, res, next) {
-    next();
-});
 
 app.use(tagRouter, function (req, res, next) {
     next();
