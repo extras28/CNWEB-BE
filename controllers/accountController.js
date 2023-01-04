@@ -262,6 +262,7 @@ const accountController = {
         limit = parseInt(req.query.limit);
         try {
             var query = {
+                accountLevel: "USER",
                 $or: [
                     {
                         fullname: {
@@ -285,20 +286,18 @@ const accountController = {
                     if (err) {
                         return res.json(err);
                     }
-                    Account.countDocuments(query).exec(
-                        (count_error, count) => {
-                            if (err) {
-                                return res.json(count_error);
-                            }
-                            return res.json({
-                                count: count,
-                                page: page + 1,
-                                limit: limit,
-                                accounts: doc,
-                                total: doc.length,
-                            });
+                    Account.countDocuments(query).exec((count_error, count) => {
+                        if (err) {
+                            return res.json(count_error);
                         }
-                    );
+                        return res.json({
+                            count: count,
+                            page: page + 1,
+                            limit: limit,
+                            accounts: doc,
+                            total: doc.length,
+                        });
+                    });
                 });
         } catch (error) {
             res.send({
