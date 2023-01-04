@@ -285,16 +285,17 @@ const accountController = {
                     if (err) {
                         return res.json(err);
                     }
-                    Account.estimatedDocumentCount(query).exec(
+                    Account.countDocuments(query).exec(
                         (count_error, count) => {
                             if (err) {
                                 return res.json(count_error);
                             }
                             return res.json({
-                                total: count,
+                                count: count,
                                 page: page + 1,
-                                limit: doc.length,
+                                limit: limit,
                                 accounts: doc,
+                                total: doc.length,
                             });
                         }
                     );
