@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-var multer = require('multer');
+var multer = require("multer");
 var upload = multer();
 const database = require("./configs/database/index");
 const accountRouter = require("./routes/accountRouter");
@@ -48,7 +48,6 @@ database.connect();
 app.use(accountRouter, function (req, res, next) {
     next();
 });
-
 
 app.use(tagRouter, function (req, res, next) {
     next();

@@ -167,6 +167,79 @@ const tagController = {
             });
         }
     },
+
+    findPersonally: async (req, res) => {
+        try {
+            let { _id, q } = req.query;
+            q = q ?? "";
+            page = parseInt(req.query.page) - 1;
+            limit = parseInt(req.query.limit);
+            let sortByCreateTime = parseInt(req.query.sortByCreateTime);
+
+            if (_id) {
+                var query = { account: _id, title: { $regex: `.*${q}.*`, $options: "i" } };
+                tag.find(query)
+                    .populate({ path: "account", select: "avatar fullname" })
+                    .sort({ createdAt: sortByCreateTime })
+                    .skip(page * limit) //Notice here
+                    .limit(limit)
+                    .exec((err, doc) => {
+                        if (err) {
+                            return res.json(err);
+                        }
+                        tag.countDocuments(query).exec((count_error, count) => {
+                            if (err) {
+                                return res.json(count_error);
+                            }
+                            return res.json({
+                                count: count,
+                                page: page + 1,
+                                limit: limit,
+                                tags: doc,
+                            });
+                        });
+                    });
+            } else {
+                const accessToken = req.headers.authorization.split(" ")[1];
+                const reqAccount = await account.findOne({
+                    accessToken: accessToken,
+                });
+                if (!reqAccount) {
+                    return res.send({
+                        result: "failed",
+                        message: "Không có quyền thực thi",
+                    });
+                }
+                var query = { account: reqAccount._id, title: { $regex: `.*${q}.*`, $options: "i" } };
+                tag.find(query)
+                    .populate({ path: "account", select: "avatar fullname" })
+                    .sort({ createdAt: sortByCreateTime })
+                    .skip(page * limit) //Notice here
+                    .limit(limit)
+                    .exec((err, doc) => {
+                        if (err) {
+                            return res.json(err);
+                        }
+                        tag.countDocuments(query).exec((count_error, count) => {
+                            if (err) {
+                                return res.json(count_error);
+                            }
+                            return res.json({
+                                count: count,
+                                page: page + 1,
+                                limit: limit,
+                                tags: doc,
+                            });
+                        });
+                    });
+            }
+        } catch (error) {
+            res.status(404).json({
+                result: "failed",
+                message: error.message,
+            });
+        }
+    },
 };
 
 module.exports = tagController;

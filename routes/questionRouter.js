@@ -25,4 +25,7 @@ router.get("/api/v1/question/find", questionController.find);
 // delete question
 router.delete("/api/v1/question/delete", questionController.delete);
 
+// get personally
+router.get("/api/v1/question/find-by-person", questionController.findPersonally);
+
 module.exports = router;
