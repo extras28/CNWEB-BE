@@ -80,12 +80,12 @@ const questionController = {
                     if (err) {
                         return res.json(err);
                     }
-                    Question.estimatedDocumentCount(query).exec((count_error, count) => {
+                    Question.countDocuments(query).exec((count_error, count) => {
                         if (err) {
                             return res.json(count_error);
                         }
                         return res.json({
-                            total: count,
+                            count: count,
                             page: page + 1,
                             limit: limit,
                             questions: doc,
