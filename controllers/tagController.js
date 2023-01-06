@@ -70,13 +70,13 @@ const tagController = {
                     if (err) {
                         return res.json(err);
                     }
-                    tag.estimatedDocumentCount(query).exec(
+                    tag.countDocuments(query).exec(
                         (count_error, count) => {
                             if (err) {
                                 return res.json(count_error);
                             }
                             return res.json({
-                                total: count,
+                                count: count,
                                 page: page + 1,
                                 limit: limit,
                                 tags: doc,
