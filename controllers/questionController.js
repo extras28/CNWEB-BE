@@ -8,8 +8,7 @@ const ObjectId = require("mongodb").ObjectId;
 const questionController = {
     createQuestion: async (req, res) => {
         try {
-            const { title, contentTextProblem, contentTextExpect, tagIds } =
-                req.body;
+            const { title, contentTextProblem, contentTextExpect, tagIds } = req.body;
             // return console.log(
             //     JSON.parse(tagIds).map((item) => {
             //         convertItem = new ObjectId(item);
@@ -56,10 +55,7 @@ const questionController = {
                 question: newQuestion,
             });
         } catch (error) {
-            // deleteImageCloud([
-            //     req.files?.contentImageProblem[0]?.filename,
-            //     req.files?.contentImageExpect[0]?.filename,
-            // ]);
+            deleteImageCloud([req.files?.contentImageProblem[0]?.filename, req.files?.contentImageExpect[0]?.filename]);
             res.send({
                 result: "failed",
                 message: error.message,
@@ -84,19 +80,17 @@ const questionController = {
                     if (err) {
                         return res.json(err);
                     }
-                    Question.estimatedDocumentCount(query).exec(
-                        (count_error, count) => {
-                            if (err) {
-                                return res.json(count_error);
-                            }
-                            return res.json({
-                                total: count,
-                                page: page + 1,
-                                limit: limit,
-                                questions: doc,
-                            });
+                    Question.estimatedDocumentCount(query).exec((count_error, count) => {
+                        if (err) {
+                            return res.json(count_error);
                         }
-                    );
+                        return res.json({
+                            total: count,
+                            page: page + 1,
+                            limit: limit,
+                            questions: doc,
+                        });
+                    });
                 });
         } catch (error) {
             res.send({
@@ -127,6 +121,79 @@ const questionController = {
             return res.status(200).json({
                 result: "success",
             });
+        } catch (error) {
+            res.status(404).json({
+                result: "failed",
+                message: error.message,
+            });
+        }
+    },
+
+    findPersonally: async (req, res) => {
+        try {
+            let { _id, q } = req.query;
+            q = q ?? "";
+            page = parseInt(req.query.page) - 1;
+            limit = parseInt(req.query.limit);
+            let sortByCreateTime = parseInt(req.query.sortByCreateTime);
+
+            if (_id) {
+                var query = { account: _id, title: { $regex: `.*${q}.*`, $options: "i" } };
+                Question.find(query)
+                    .populate({ path: "account", select: "avatar fullname" })
+                    .sort({ createdAt: sortByCreateTime })
+                    .skip(page * limit) //Notice here
+                    .limit(limit)
+                    .exec((err, doc) => {
+                        if (err) {
+                            return res.json(err);
+                        }
+                        Question.countDocuments(query).exec((count_error, count) => {
+                            if (err) {
+                                return res.json(count_error);
+                            }
+                            return res.json({
+                                count: count,
+                                page: page + 1,
+                                limit: limit,
+                                questions: doc,
+                            });
+                        });
+                    });
+            } else {
+                const accessToken = req.headers.authorization.split(" ")[1];
+                const reqAccount = await account.findOne({
+                    accessToken: accessToken,
+                });
+                if (!reqAccount) {
+                    return res.send({
+                        result: "failed",
+                        message: "Không có quyền thực thi",
+                    });
+                }
+                var query = { account: reqAccount._id, title: { $regex: `.*${q}.*`, $options: "i" } };
+                Question.find(query)
+                    .populate({ path: "account", select: "avatar fullname" })
+                    .sort({ createdAt: sortByCreateTime })
+                    .skip(page * limit) //Notice here
+                    .limit(limit)
+                    .exec((err, doc) => {
+                        if (err) {
+                            return res.json(err);
+                        }
+                        Question.countDocuments(query).exec((count_error, count) => {
+                            if (err) {
+                                return res.json(count_error);
+                            }
+                            return res.json({
+                                count: count,
+                                page: page + 1,
+                                limit: limit,
+                                questions: doc,
+                            });
+                        });
+                    });
+            }
         } catch (error) {
             res.status(404).json({
                 result: "failed",
