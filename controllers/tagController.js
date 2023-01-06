@@ -16,6 +16,7 @@ const tagController = {
             });
 
             if (checkTag) {
+                console.log(checkTag);
                 return res.status(404).send({
                     result: "failed",
                     message: "Tên đã tồn tại",
@@ -60,7 +61,6 @@ const tagController = {
         let sortByCreateTime = parseInt(req.query.sortByCreateTime);
         try {
             var query = { name: { $regex: `.*${q}.*`, $options: "i" } };
-            // var query = {  };
             tag.find(query)
                 .populate({ path: "account", select: "avatar fullname" })
                 .sort({ createdAt: sortByCreateTime })
@@ -70,13 +70,13 @@ const tagController = {
                     if (err) {
                         return res.json(err);
                     }
-                    tag.estimatedDocumentCount(query).exec(
+                    tag.countDocuments(query).exec(
                         (count_error, count) => {
                             if (err) {
                                 return res.json(count_error);
                             }
                             return res.json({
-                                total: count,
+                                count: count,
                                 page: page + 1,
                                 limit: limit,
                                 tags: doc,

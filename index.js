@@ -38,6 +38,9 @@ app.use(questionRouter, function (req, res, next) {
     next();
 });
 
+app.use(accountRouter, function (req, res, next) {
+    next();
+});
 // for parsing multipart/form-data
 app.use(upload.array());
 app.use(express.static("public"));
@@ -45,9 +48,6 @@ app.use(express.static("public"));
 // database connect
 database.connect();
 
-app.use(accountRouter, function (req, res, next) {
-    next();
-});
 
 
 app.use(tagRouter, function (req, res, next) {
