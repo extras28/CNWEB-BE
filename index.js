@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-var multer = require('multer');
+var multer = require("multer");
 var upload = multer();
 const database = require("./configs/database/index");
 const accountRouter = require("./routes/accountRouter");
@@ -48,8 +48,6 @@ app.use(express.static("public"));
 // database connect
 database.connect();
 
-
-
 app.use(tagRouter, function (req, res, next) {
     next();
 });
@@ -62,6 +60,16 @@ app.use("/", (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+// app.listen(PORT, () => {
+//     console.log(`Your app listening at http://localhost:${PORT}`);
+// });
+const http = require("http");
+const { bindHttpServer } = require("./websocket");
+
+let httpServer = http.createServer(app);
+
+bindHttpServer(httpServer);
+
+httpServer.listen(PORT, () => {
     console.log(`Your app listening at http://localhost:${PORT}`);
 });
