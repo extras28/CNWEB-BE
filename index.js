@@ -71,6 +71,6 @@ let httpServer = http.createServer(app);
 
 bindHttpServer(httpServer);
 
-httpServer.listen(PORT, () => {
+httpServer.listen(PORT, "0.0.0.0", () => {
     console.log(`Your app listening at http://localhost:${PORT}`);
 });
