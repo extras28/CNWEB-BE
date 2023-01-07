@@ -34,10 +34,6 @@ app.use(
     })
 );
 
-app.use(questionRouter, function (req, res, next) {
-    next();
-});
-
 app.use(accountRouter, function (req, res, next) {
     next();
 });
@@ -47,6 +43,10 @@ app.use(express.static("public"));
 
 // database connect
 database.connect();
+
+app.use(questionRouter, function (req, res, next) {
+    next();
+});
 
 app.use(tagRouter, function (req, res, next) {
     next();
