@@ -34,14 +34,6 @@ const questionController = {
                     contentTextProblem: contentTextProblem,
                     contentTextExpect: contentTextExpect,
                     account: reqAccount._id,
-                    // contentImageProblem: {
-                    //     path: req.files?.contentImageProblem[0]?.path,
-                    //     filename: req.files?.contentImageProblem[0]?.filename,
-                    // },
-                    // contentImageExpect: {
-                    //     path: req.files?.contentImageExpect[0]?.path,
-                    //     filename: req.files?.contentImageExpect[0]?.filename,
-                    // },
                     like: 0,
                     dislike: 0,
                     numberOfView: 0,
@@ -55,7 +47,6 @@ const questionController = {
                 question: newQuestion,
             });
         } catch (error) {
-            // deleteImageCloud([req.files?.contentImageProblem[0]?.filename, req.files?.contentImageExpect[0]?.filename]);
             res.send({
                 result: "failed",
                 message: error.message,
