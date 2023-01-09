@@ -2,6 +2,7 @@ const Question = require("../models/question");
 const account = require("../models/account");
 const { isObjectEmpty } = require("../utils");
 const deleteImageCloud = require("../middlewares/deleteImageCloud");
+const { findOne, findById } = require("../models/question");
 const ObjectId = require("mongodb").ObjectId;
 // const account = require("../models/account")
 
@@ -184,6 +185,30 @@ const questionController = {
                             });
                         });
                     });
+            }
+        } catch (error) {
+            res.status(404).json({
+                result: "failed",
+                message: error.message,
+            });
+        }
+    },
+
+    detail: async (req, res) => {
+        try {
+            const { _id } = req.query;
+            const question = await Question.findById(_id).populate({ path: "account", select: "avatar fullname" });
+
+            if (question) {
+                return res.status(200).json({
+                    result: "success",
+                    question: question,
+                });
+            } else {
+                return res.status(404).json({
+                    result: "failed",
+                    message: "Không tìm thấy câu hỏi",
+                });
             }
         } catch (error) {
             res.status(404).json({
