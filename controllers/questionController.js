@@ -1,5 +1,6 @@
 const Question = require("../models/question");
 const account = require("../models/account");
+const tag = require("../models/tag");
 const { isObjectEmpty } = require("../utils");
 const deleteImageCloud = require("../middlewares/deleteImageCloud");
 const { findOne, findById } = require("../models/question");
@@ -57,6 +58,7 @@ const questionController = {
             var query = { title: { $regex: `.*${q}.*`, $options: "i" } };
             Question.find(query)
                 .populate({ path: "account", select: "avatar fullname" })
+                .populate({ path: "tagIds", select: "name" })
                 .sort({ createdAt: sortByCreateTime })
                 .skip(page * limit) //Notice here
                 .limit(limit)
