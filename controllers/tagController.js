@@ -24,7 +24,7 @@ const tagController = {
             }
 
             if (!reqAccount) {
-                return res.send({
+                return res.status(403).send({
                     result: "failed",
                     message: "Không có quyền thực thi",
                 });
@@ -70,19 +70,17 @@ const tagController = {
                     if (err) {
                         return res.json(err);
                     }
-                    tag.countDocuments(query).exec(
-                        (count_error, count) => {
-                            if (err) {
-                                return res.json(count_error);
-                            }
-                            return res.json({
-                                count: count,
-                                page: page + 1,
-                                limit: limit,
-                                tags: doc,
-                            });
+                    tag.countDocuments(query).exec((count_error, count) => {
+                        if (err) {
+                            return res.json(count_error);
                         }
-                    );
+                        return res.json({
+                            count: count,
+                            page: page + 1,
+                            limit: limit,
+                            tags: doc,
+                        });
+                    });
                 });
         } catch (error) {
             res.send({
@@ -103,7 +101,7 @@ const tagController = {
             const thisTag = await tag.findById(_id);
 
             if (!reqAccount || !reqAccount._id.equals(thisTag.account)) {
-                return res.send({
+                return res.status(403).send({
                     result: "failed",
                     message: "Không có quyền thực thi",
                 });
@@ -131,7 +129,7 @@ const tagController = {
             const thisTag = await tag.findById(_id);
 
             if (!reqAccount || !reqAccount._id.equals(thisTag.account)) {
-                return res.send({
+                return res.status(403).send({
                     result: "failed",
                     message: "Không có quyền thực thi",
                 });
@@ -159,7 +157,7 @@ const tagController = {
                         });
                     }
                 }
-            )
+            );
         } catch (error) {
             res.send({
                 result: "failed",
@@ -205,7 +203,7 @@ const tagController = {
                     accessToken: accessToken,
                 });
                 if (!reqAccount) {
-                    return res.send({
+                    return res.status(401).send({
                         result: "failed",
                         message: "Không có quyền thực thi",
                     });
@@ -234,7 +232,7 @@ const tagController = {
                     });
             }
         } catch (error) {
-            res.status(404).json({
+            res.status(400).send({
                 result: "failed",
                 message: error.message,
             });

@@ -73,18 +73,13 @@ const accountController = {
                 });
             }
 
-            if (
-                !account.accessToken ||
-                moment(account.expirationDateToken).diff(moment.now()) < 0
-            ) {
+            if (!account.accessToken || moment(account.expirationDateToken).diff(moment.now()) < 0) {
                 var accessToken = generateRandomStr(32);
                 var expirationDate = new Date();
                 var time = expirationDate.getTime();
                 var time1 = time + 24 * 3600 * 1000;
                 var setTime = expirationDate.setTime(time1);
-                var expirationDateStr = moment(setTime)
-                    .format("YYYY-MM-DD HH:mm:ss")
-                    .toString();
+                var expirationDateStr = moment(setTime).format("YYYY-MM-DD HH:mm:ss").toString();
 
                 await account.updateOne({
                     accessToken: accessToken,
@@ -147,9 +142,7 @@ const accountController = {
             var random = 100000 + Math.random() * 900000;
             var plainResetPasswordToken = Math.floor(random);
 
-            const hashedResetPasswordToken = await utils.sha256(
-                plainResetPasswordToken.toString()
-            );
+            const hashedResetPasswordToken = await utils.sha256(plainResetPasswordToken.toString());
 
             const newPassword = await utils.sha256(hashedResetPasswordToken);
 
@@ -171,9 +164,9 @@ const accountController = {
                 `Your new password: ${plainResetPasswordToken}`
             );
         } catch (error) {
-            res.send({
+            res.status(400).send({
                 result: "failed",
-                message: error,
+                message: error.message,
             });
         }
     },
@@ -213,9 +206,9 @@ const accountController = {
                 });
             }
         } catch (error) {
-            res.send({
+            res.status(400).send({
                 result: "failed",
-                message: error,
+                message: error.message,
             });
         }
     },
@@ -300,9 +293,9 @@ const accountController = {
                     });
                 });
         } catch (error) {
-            res.send({
+            res.status(400).send({
                 result: "failed",
-                message: error,
+                message: error.message,
             });
         }
     },
@@ -314,7 +307,7 @@ const accountController = {
                 accessToken: accessToken,
             });
             if (!account && account.accountLevel !== "ADMIN") {
-                return res.status(404).json({
+                return res.status(403).json({
                     result: "failed",
                     message: "Không đủ quyền truy cập",
                 });
@@ -338,7 +331,7 @@ const accountController = {
             });
         } catch (error) {
             deleteImageCloud([req.file.filename]);
-            res.status(404).json({
+            res.status(400).send({
                 result: "failed",
                 message: error.message,
             });
@@ -352,7 +345,7 @@ const accountController = {
                 accessToken: accessToken,
             });
             if (!account) {
-                return res.status(404).json({
+                return res.status(403).json({
                     result: "failed",
                     message: "Không đủ quyền truy cập",
                 });
@@ -363,7 +356,7 @@ const accountController = {
                 account: account,
             });
         } catch (error) {
-            res.status(404).json({
+            res.status(400).send({
                 result: "failed",
                 message: error.message,
             });

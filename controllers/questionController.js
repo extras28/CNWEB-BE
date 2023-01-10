@@ -10,12 +10,6 @@ const questionController = {
     createQuestion: async (req, res) => {
         try {
             const { title, contentTextProblem, contentTextExpect, tagIds } = req.body;
-            // return console.log(
-            //     JSON.parse(tagIds).map((item) => {
-            //         convertItem = new ObjectId(item);
-            //         return convertItem;
-            //     })
-            // );
 
             const accessToken = req.headers.authorization.split(" ")[1];
             const reqAccount = await account.findOne({
@@ -23,24 +17,22 @@ const questionController = {
             });
 
             if (!reqAccount) {
-                return res.send({
+                return res.status(403).send({
                     result: "failed",
                     message: "Không có quyền thực thi",
                 });
             }
 
-            const newQuestion = new Question(
-                {
-                    title: title,
-                    contentTextProblem: contentTextProblem,
-                    contentTextExpect: contentTextExpect,
-                    account: reqAccount._id,
-                    like: 0,
-                    dislike: 0,
-                    numberOfView: 0,
-                }
-                // { $push: { tagIds: { $each: tagIds } } }
-            );
+            const newQuestion = new Question({
+                title: title,
+                contentTextProblem: contentTextProblem,
+                contentTextExpect: contentTextExpect,
+                account: reqAccount._id,
+                like: 0,
+                dislike: 0,
+                numberOfView: 0,
+                tagIds: tagIds,
+            });
 
             await newQuestion.save();
             return res.send({
@@ -48,7 +40,7 @@ const questionController = {
                 question: newQuestion,
             });
         } catch (error) {
-            res.send({
+            res.status(400).send({
                 result: "failed",
                 message: error.message,
             });
@@ -85,9 +77,9 @@ const questionController = {
                     });
                 });
         } catch (error) {
-            res.send({
+            res.status(400).send({
                 result: "failed",
-                message: error,
+                message: error.message,
             });
         }
     },
@@ -103,7 +95,7 @@ const questionController = {
             const question = await Question.findById(_id);
 
             if (!reqAccount || !reqAccount._id.equals(question.account)) {
-                return res.send({
+                return res.status(403).send({
                     result: "failed",
                     message: "Không có quyền thực thi",
                 });
@@ -114,7 +106,7 @@ const questionController = {
                 result: "success",
             });
         } catch (error) {
-            res.status(404).json({
+            res.status(400).send({
                 result: "failed",
                 message: error.message,
             });
@@ -158,7 +150,7 @@ const questionController = {
                     accessToken: accessToken,
                 });
                 if (!reqAccount) {
-                    return res.send({
+                    return res.status(403).send({
                         result: "failed",
                         message: "Không có quyền thực thi",
                     });
@@ -187,7 +179,7 @@ const questionController = {
                     });
             }
         } catch (error) {
-            res.status(404).json({
+            res.status(400).send({
                 result: "failed",
                 message: error.message,
             });
@@ -211,7 +203,7 @@ const questionController = {
                 });
             }
         } catch (error) {
-            res.status(404).json({
+            res.status(400).send({
                 result: "failed",
                 message: error.message,
             });

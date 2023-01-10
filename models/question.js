@@ -7,14 +7,6 @@ const Question = new mongoose.Schema(
         title: String,
         contentTextProblem: String,
         contentTextExpect: String,
-        contentImageProblem: {
-            path: String,
-            filename: String,
-        },
-        contentImageExpect: {
-            path: String,
-            filename: String,
-        },
         numberOfView: Number,
         like: Number,
         dislike: Number,

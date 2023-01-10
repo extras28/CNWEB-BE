@@ -6,6 +6,8 @@ var { server: WebSocketServer } = require("websocket");
  */
 let wsServer;
 
+let conns = [];
+
 /**
  *
  * @param {http.Server} httpServer
@@ -44,6 +46,10 @@ function bindHttpServer(httpServer) {
                 console.log("Received Binary Message of " + message.binaryData.length + " bytes");
                 connection.sendBytes(message.binaryData);
             }
+
+            conns.push(connection);
+
+            wsServer.broadcastUTF(message.utf8Data);
         });
         connection.on("close", function (reasonCode, description) {
             console.log(new Date() + " Peer " + connection.remoteAddress + " disconnected.");
