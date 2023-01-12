@@ -31,4 +31,13 @@ router.get("/api/v1/question/find-by-person", questionController.findPersonally)
 // get detail
 router.get("/api/v1/question/detail", questionController.detail);
 
+// update
+router.put("/api/v1/question/update", questionController.update);
+
+//delete
+router.delete("/api/v1/question/delete", questionController.delete);
+
+//react
+router.post("/api/v1/question/react", questionController.react);
+
 module.exports = router;

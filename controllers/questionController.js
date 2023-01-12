@@ -29,8 +29,8 @@ const questionController = {
                 contentTextProblem: contentTextProblem,
                 contentTextExpect: contentTextExpect,
                 account: reqAccount._id,
-                like: 0,
-                dislike: 0,
+                likeCount: 0,
+                dislikeCount: 0,
                 numberOfView: 0,
                 tagIds: tagIds,
             });
@@ -53,13 +53,15 @@ const questionController = {
         q = q ?? "";
         page = parseInt(req.query.page) - 1;
         limit = parseInt(req.query.limit);
-        let sortByCreateTime = parseInt(req.query.sortByCreateTime);
+        like = parseInt(req.query.like) * -1;
+        dislike = parseInt(req.query.dislike) * -1;
+        let sortByCreateTime = parseInt(req.query.sortByCreateTime) * -1;
         try {
             var query = { title: { $regex: `.*${q}.*`, $options: "i" } };
             Question.find(query)
                 .populate({ path: "account", select: "avatar fullname" })
                 .populate({ path: "tagIds", select: "name" })
-                .sort({ createdAt: sortByCreateTime })
+                .sort({ dislikeCount: dislike, likeCount: like, createdAt: sortByCreateTime })
                 .skip(page * limit) //Notice here
                 .limit(limit)
                 .exec((err, doc) => {
@@ -127,6 +129,7 @@ const questionController = {
                 var query = { account: _id, title: { $regex: `.*${q}.*`, $options: "i" } };
                 Question.find(query)
                     .populate({ path: "account", select: "avatar fullname" })
+                    .populate({ path: "tagIds", select: "name" })
                     .sort({ createdAt: sortByCreateTime })
                     .skip(page * limit) //Notice here
                     .limit(limit)
@@ -160,6 +163,7 @@ const questionController = {
                 var query = { account: reqAccount._id, title: { $regex: `.*${q}.*`, $options: "i" } };
                 Question.find(query)
                     .populate({ path: "account", select: "avatar fullname" })
+                    .populate({ path: "tagIds", select: "name" })
                     .sort({ createdAt: sortByCreateTime })
                     .skip(page * limit) //Notice here
                     .limit(limit)
@@ -191,7 +195,9 @@ const questionController = {
     detail: async (req, res) => {
         try {
             const { _id } = req.query;
-            const question = await Question.findById(_id).populate({ path: "account", select: "avatar fullname" });
+            const question = await Question.findById(_id)
+                .populate({ path: "account", select: "avatar fullname" })
+                .populate({ path: "tagIds" });
 
             if (question) {
                 return res.status(200).json({
@@ -200,6 +206,175 @@ const questionController = {
                 });
             } else {
                 return res.status(404).json({
+                    result: "failed",
+                    message: "Không tìm thấy câu hỏi",
+                });
+            }
+        } catch (error) {
+            res.status(400).send({
+                result: "failed",
+                message: error.message,
+            });
+        }
+    },
+
+    update: async (req, res) => {
+        try {
+            const { _id, title, contentTextProblem, contentTextExpect, tagIds } = req.body;
+
+            const accessToken = req.headers.authorization.split(" ")[1];
+            const reqAccount = await account.findOne({
+                accessToken: accessToken,
+            });
+
+            if (!reqAccount) {
+                return res.status(403).send({
+                    result: "failed",
+                    message: "Không có quyền thực thi",
+                });
+            }
+            const updatedQuestion = await Question.findByIdAndUpdate(
+                _id,
+                {
+                    title: title,
+                    contentTextProblem: contentTextProblem,
+                    contentTextExpect: contentTextExpect,
+                    tagIds: tagIds,
+                },
+                { new: true }
+            );
+
+            if (updatedQuestion) {
+                return res.send({
+                    result: "success",
+                    question: updatedQuestion,
+                });
+            } else {
+                return res.status(400).send({
+                    result: "failed",
+                    message: "Không tìm thấy câu hỏi",
+                });
+            }
+        } catch (error) {
+            res.status(400).send({
+                result: "failed",
+                message: error.message,
+            });
+        }
+    },
+
+    delete: async (req, res) => {
+        try {
+            const { _id } = req.query;
+            const deletedQuestion = await Question.findByIdAndDelete(_id);
+            if (deletedQuestion) {
+                return res.send({
+                    result: "success",
+                });
+            } else {
+                return res.status(400).send({
+                    result: "failed",
+                    message: "Không tìm thấy câu hỏi",
+                });
+            }
+        } catch (error) {
+            res.status(400).send({
+                result: "failed",
+                message: error.message,
+            });
+        }
+    },
+
+    react: async (req, res) => {
+        try {
+            const { _id } = req.body;
+            const reactType = parseInt(req.body.reactType);
+            const accessToken = req.headers.authorization.split(" ")[1];
+            const reqAccount = await account.findOne({
+                accessToken: accessToken,
+            });
+
+            if (!reqAccount) {
+                return res.status(403).send({
+                    result: "failed",
+                    message: "Không có quyền thực thi",
+                });
+            }
+            const question = await Question.findById(_id);
+
+            let updatedQuestion;
+
+            const alreadyLike = question.likes.includes(reqAccount._id);
+            const alreadyDislike = question.dislikes.includes(reqAccount._id);
+
+            if (reactType === 1 && alreadyLike) {
+                updatedQuestion = await Question.findByIdAndUpdate(
+                    _id,
+                    {
+                        $inc: { likeCount: -1 },
+                        $pull: { likes: reqAccount._id },
+                    },
+                    { new: true }
+                );
+            } else if (reactType == 1 && !alreadyLike) {
+                if (alreadyDislike) {
+                    updatedQuestion = await Question.findByIdAndUpdate(
+                        _id,
+                        {
+                            $inc: { likeCount: 1, dislikeCount: -1 },
+                            $push: { likes: reqAccount._id },
+                            $pull: { dislikes: reqAccount._id },
+                        },
+                        { new: true }
+                    );
+                } else {
+                    updatedQuestion = await Question.findByIdAndUpdate(
+                        _id,
+                        {
+                            $inc: { likeCount: 1 },
+                            $push: { likes: reqAccount._id },
+                        },
+                        { new: true }
+                    );
+                }
+            } else if (reactType == 0 && alreadyDislike) {
+                updatedQuestion = await Question.findByIdAndUpdate(
+                    _id,
+                    {
+                        $inc: { dislikeCount: -1 },
+                        $pull: { dislikes: reqAccount._id },
+                    },
+                    { new: true }
+                );
+            } else if (reactType == 0 && !alreadyDislike) {
+                if (alreadyLike) {
+                    updatedQuestion = await Question.findByIdAndUpdate(
+                        _id,
+                        {
+                            $inc: { likeCount: -1, dislikeCount: 1 },
+                            $push: { dislikes: reqAccount._id },
+                            $pull: { likes: reqAccount._id },
+                        },
+                        { new: true }
+                    );
+                } else {
+                    updatedQuestion = await Question.findByIdAndUpdate(
+                        _id,
+                        {
+                            $inc: { dislikeCount: 1 },
+                            $push: { dislikes: reqAccount._id },
+                        },
+                        { new: true }
+                    );
+                }
+            }
+            if (updatedQuestion) {
+                return res.send({
+                    result: "success",
+                    question: updatedQuestion,
+                });
+            } else {
+                return res.status(400).send({
                     result: "failed",
                     message: "Không tìm thấy câu hỏi",
                 });

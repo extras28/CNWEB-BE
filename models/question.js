@@ -8,8 +8,10 @@ const Question = new mongoose.Schema(
         contentTextProblem: String,
         contentTextExpect: String,
         numberOfView: Number,
-        like: Number,
-        dislike: Number,
+        likes: Array,
+        likeCount: Number,
+        dislikes: Array,
+        dislikeCount: Number,
     },
     { timestamps: true }
 );
