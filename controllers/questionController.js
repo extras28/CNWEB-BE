@@ -98,7 +98,7 @@ const questionController = {
 
             const question = await Question.findById(_id);
 
-            if (!reqAccount || !reqAccount._id.equals(question.account)) {
+            if ((!reqAccount || !reqAccount._id.equals(question.account)) && reqAccount.accountLevel !== "ADMIN") {
                 return res.status(403).send({
                     result: "failed",
                     message: "Không có quyền thực thi",
@@ -227,7 +227,7 @@ const questionController = {
                 accessToken: accessToken,
             });
 
-            if (!reqAccount) {
+            if (!reqAccount && reqAccount.accountLevel !== "ADMIN") {
                 return res.status(403).send({
                     result: "failed",
                     message: "Không có quyền thực thi",

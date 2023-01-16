@@ -38,6 +38,11 @@ const accountController = {
             });
 
             await newAccount.save();
+            newAccount.toJSON = function () {
+                var obj = this.toObject();
+                delete obj.password;
+                return obj;
+            };
 
             return res.send({
                 result: "success",
@@ -86,13 +91,22 @@ const accountController = {
                     expirationDateToken: expirationDateStr,
                 });
             }
-            const responseAccount = await Account.findOne({
-                _id: account._id,
-            });
+            const responseAccount = await Account.findOne(
+                {
+                    _id: account._id,
+                },
+                { password: 0 }
+            );
+
+            responseAccount.toJSON = function () {
+                var obj = this.toObject();
+                delete obj.password;
+                return obj;
+            };
 
             return res.send({
                 result: "success",
-                account: responseAccount.toJSON(),
+                account: responseAccount,
             });
         } catch (err) {
             res.status(500).json({
@@ -271,7 +285,7 @@ const accountController = {
                     },
                 ],
             };
-            Account.find(query)
+            Account.find(query, { password: 0 })
                 .sort({ update_at: -1 })
                 .skip(page * limit) //Notice here
                 .limit(limit)
@@ -303,34 +317,54 @@ const accountController = {
     update: async (req, res) => {
         try {
             const accessToken = req.headers.authorization.split(" ")[1];
-            const account = await Account.findOne({
-                accessToken: accessToken,
-            });
+            let account;
+            if (req.body._id) {
+                account = await Account.findById(req.body._id);
+            } else {
+                account = await Account.findOne({
+                    accessToken: accessToken,
+                });
+            }
             if (!account && account.accountLevel !== "ADMIN") {
                 return res.status(403).json({
                     result: "failed",
                     message: "Không đủ quyền truy cập",
                 });
             }
+            let updatedAccount;
             if (req.file) {
-                await Account.findByIdAndUpdate(account._id, {
-                    ...req.body,
-                    avatar: {
-                        path: req.file.path,
-                        filename: req.file.filename,
+                updatedAccount = await Account.findByIdAndUpdate(
+                    account._id,
+                    {
+                        ...req.body,
+                        avatar: {
+                            path: req.file.path,
+                            filename: req.file.filename,
+                        },
                     },
-                });
+                    { new: true }
+                );
             } else {
-                await Account.findByIdAndUpdate(account._id, {
-                    ...req.body,
-                });
+                updatedAccount = await Account.findByIdAndUpdate(
+                    account._id,
+                    {
+                        ...req.body,
+                    },
+                    { new: true }
+                );
             }
+
+            updatedAccount.toJSON = function () {
+                var obj = this.toObject();
+                delete obj.password;
+                return obj;
+            };
 
             return res.status(200).json({
                 result: "success",
+                account: updatedAccount,
             });
         } catch (error) {
-            deleteImageCloud([req.file.filename]);
             res.status(400).send({
                 result: "failed",
                 message: error.message,
@@ -341,15 +375,29 @@ const accountController = {
     detail: async (req, res) => {
         try {
             const accessToken = req.headers.authorization.split(" ")[1];
-            const account = await Account.findOne({
-                accessToken: accessToken,
-            });
-            if (!account) {
+            let account;
+            if (req.query._id) {
+                account = await Account.findOne({
+                    _id: req.query._id,
+                });
+            } else {
+                account = await Account.findOne({
+                    accessToken: accessToken,
+                });
+            }
+
+            if (!account && account.accountLevel !== "ADMIN") {
                 return res.status(403).json({
                     result: "failed",
                     message: "Không đủ quyền truy cập",
                 });
             }
+
+            account.toJSON = function () {
+                var obj = this.toObject();
+                delete obj.password;
+                return obj;
+            };
 
             res.status(200).json({
                 result: "success",

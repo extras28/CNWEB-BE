@@ -16,7 +16,6 @@ const tagController = {
             });
 
             if (checkTag) {
-                console.log(checkTag);
                 return res.status(404).send({
                     result: "failed",
                     message: "Tên đã tồn tại",
@@ -100,7 +99,7 @@ const tagController = {
 
             const thisTag = await tag.findById(_id);
 
-            if (!reqAccount || !reqAccount._id.equals(thisTag.account)) {
+            if ((!reqAccount || !reqAccount._id.equals(thisTag.account)) && reqAccount.accountLevel !== "ADMIN") {
                 return res.status(403).send({
                     result: "failed",
                     message: "Không có quyền thực thi",
@@ -128,7 +127,7 @@ const tagController = {
             });
             const thisTag = await tag.findById(_id);
 
-            if (!reqAccount || !reqAccount._id.equals(thisTag.account)) {
+            if ((!reqAccount || !reqAccount._id.equals(thisTag.account)) && reqAccount.accountLevel !== "ADMIN") {
                 return res.status(403).send({
                     result: "failed",
                     message: "Không có quyền thực thi",
@@ -191,7 +190,7 @@ const tagController = {
                             }
                             return res.json({
                                 count: count,
-                                page: page + 1,
+                                page: page + 1 ?? 1,
                                 limit: limit,
                                 tags: doc,
                             });
@@ -224,7 +223,7 @@ const tagController = {
                             }
                             return res.json({
                                 count: count,
-                                page: page + 1,
+                                page: page + 1 ?? 1,
                                 limit: limit,
                                 tags: doc,
                             });
