@@ -197,7 +197,14 @@ const questionController = {
             const { _id } = req.query;
             const question = await Question.findById(_id)
                 .populate({ path: "account", select: "avatar fullname" })
-                .populate({ path: "tagIds" });
+                .populate({ path: "tagIds" })
+                .populate({
+                    path: "answer",
+                    populate: {
+                        path: "account",
+                        select: "avatar fullname",
+                    },
+                });
 
             if (question) {
                 return res.status(200).json({

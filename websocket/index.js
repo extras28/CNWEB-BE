@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 var { server: WebSocketServer } = require("websocket");
+const answerController = require("../controllers/answerController");
 
 /**
  * @type {WebSocketServer}
@@ -40,8 +41,10 @@ function bindHttpServer(httpServer) {
         console.log(new Date() + " Connection accepted.");
         connection.on("message", function (message) {
             if (message.type === "utf8") {
-                console.log("Received Message: " + message.utf8Data);
+                // console.log("Received Message: " + message.utf8Data);
                 connection.sendUTF(JSON.stringify(message.utf8Data));
+                answerController.create(message.utf8Data);
+                
             } else if (message.type === "binary") {
                 console.log("Received Binary Message of " + message.binaryData.length + " bytes");
                 connection.sendBytes(JSON.stringify(message.binaryData));

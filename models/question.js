@@ -4,6 +4,7 @@ const Question = new mongoose.Schema(
     {
         account: { type: mongoose.Schema.Types.ObjectId, ref: "account" },
         tagIds: [{ type: mongoose.Schema.Types.ObjectId, ref: "tag" }],
+        answer: [{ type: mongoose.Schema.Types.ObjectId, ref: "answer" }],
         title: String,
         contentTextProblem: String,
         contentTextExpect: String,
