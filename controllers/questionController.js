@@ -315,7 +315,9 @@ const questionController = {
                         $pull: { likes: reqAccount._id },
                     },
                     { new: true }
-                );
+                )
+                    .populate({ path: "account", select: "avatar fullname" })
+                    .populate({ path: "tagIds", select: "name" });
             } else if (reactType == 1 && !alreadyLike) {
                 if (alreadyDislike) {
                     updatedQuestion = await Question.findByIdAndUpdate(
@@ -326,7 +328,9 @@ const questionController = {
                             $pull: { dislikes: reqAccount._id },
                         },
                         { new: true }
-                    );
+                    )
+                        .populate({ path: "account", select: "avatar fullname" })
+                        .populate({ path: "tagIds", select: "name" });
                 } else {
                     updatedQuestion = await Question.findByIdAndUpdate(
                         _id,
@@ -335,7 +339,9 @@ const questionController = {
                             $push: { likes: reqAccount._id },
                         },
                         { new: true }
-                    );
+                    )
+                        .populate({ path: "account", select: "avatar fullname" })
+                        .populate({ path: "tagIds", select: "name" });
                 }
             } else if (reactType == 0 && alreadyDislike) {
                 updatedQuestion = await Question.findByIdAndUpdate(
@@ -345,7 +351,9 @@ const questionController = {
                         $pull: { dislikes: reqAccount._id },
                     },
                     { new: true }
-                );
+                )
+                    .populate({ path: "account", select: "avatar fullname" })
+                    .populate({ path: "tagIds", select: "name" });
             } else if (reactType == 0 && !alreadyDislike) {
                 if (alreadyLike) {
                     updatedQuestion = await Question.findByIdAndUpdate(
@@ -356,7 +364,9 @@ const questionController = {
                             $pull: { likes: reqAccount._id },
                         },
                         { new: true }
-                    );
+                    )
+                        .populate({ path: "account", select: "avatar fullname" })
+                        .populate({ path: "tagIds", select: "name" });
                 } else {
                     updatedQuestion = await Question.findByIdAndUpdate(
                         _id,
@@ -365,7 +375,9 @@ const questionController = {
                             $push: { dislikes: reqAccount._id },
                         },
                         { new: true }
-                    );
+                    )
+                        .populate({ path: "account", select: "avatar fullname" })
+                        .populate({ path: "tagIds", select: "name" });
                 }
             }
             if (updatedQuestion) {
