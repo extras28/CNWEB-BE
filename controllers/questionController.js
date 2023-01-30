@@ -24,6 +24,20 @@ const questionController = {
                 });
             }
 
+            for (let i = 0; i < tagIds.length; i++) {
+                tag.findByIdAndUpdate(
+                    tagIds[i],
+                    {
+                        $inc: { numberOfQuestion: 1 },
+                    },
+                    { new: true },
+                    function (err, doc) {
+                        if (err) return console.log(err);
+                        console.log(doc);
+                    }
+                );
+            }
+
             const newQuestion = new Question({
                 title: title,
                 contentTextProblem: contentTextProblem,
@@ -97,12 +111,27 @@ const questionController = {
             });
 
             const question = await Question.findById(_id);
+            const tagIds = question.tagIds;
 
             if ((!reqAccount || !reqAccount._id.equals(question.account)) && reqAccount.accountLevel !== "ADMIN") {
                 return res.status(403).send({
                     result: "failed",
                     message: "Không có quyền thực thi",
                 });
+            }
+
+            for (let i = 0; i < tagIds.length; i++) {
+                tag.findByIdAndUpdate(
+                    tagIds[i],
+                    {
+                        $inc: { numberOfQuestion: -1 },
+                    },
+                    { new: true },
+                    function (err, doc) {
+                        if (err) return console.log(err);
+                        console.log(doc);
+                    }
+                );
             }
 
             await question.delete();
@@ -270,27 +299,27 @@ const questionController = {
         }
     },
 
-    delete: async (req, res) => {
-        try {
-            const { _id } = req.query;
-            const deletedQuestion = await Question.findByIdAndDelete(_id);
-            if (deletedQuestion) {
-                return res.send({
-                    result: "success",
-                });
-            } else {
-                return res.status(400).send({
-                    result: "failed",
-                    message: "Không tìm thấy câu hỏi",
-                });
-            }
-        } catch (error) {
-            res.status(400).send({
-                result: "failed",
-                message: error.message,
-            });
-        }
-    },
+    // delete: async (req, res) => {
+    //     try {
+    //         const { _id } = req.query;
+    //         const deletedQuestion = await Question.findByIdAndDelete(_id);
+    //         if (deletedQuestion) {
+    //             return res.send({
+    //                 result: "success",
+    //             });
+    //         } else {
+    //             return res.status(400).send({
+    //                 result: "failed",
+    //                 message: "Không tìm thấy câu hỏi",
+    //             });
+    //         }
+    //     } catch (error) {
+    //         res.status(400).send({
+    //             result: "failed",
+    //             message: error.message,
+    //         });
+    //     }
+    // },
 
     react: async (req, res) => {
         try {

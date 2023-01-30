@@ -16,10 +16,7 @@ router.post("/api/v1/account/sign-out", accountController.signOut);
 router.put("/api/v1/account/change-password", accountController.changePassword);
 
 //request to reset password
-router.post(
-    "/api/v1/account/request-reset-password",
-    accountController.requestToResetPassword
-);
+router.post("/api/v1/account/request-reset-password", accountController.requestToResetPassword);
 
 //reset password
 router.post("/api/v1/account/reset-password", accountController.resetPassword);
@@ -32,5 +29,8 @@ router.put("/api/v1/account/update", uploadCloud.single("avatar"), accountContro
 
 //update account
 router.get("/api/v1/account/detail", accountController.detail);
+
+// delete account
+router.delete("/api/v1/account/delete", accountController.delete);
 
 module.exports = router;

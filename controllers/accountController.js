@@ -298,6 +298,7 @@ const accountController = {
                             return res.json(count_error);
                         }
                         return res.json({
+                            result: "success",
                             count: count,
                             page: page + 1,
                             limit: limit,
@@ -317,6 +318,7 @@ const accountController = {
     update: async (req, res) => {
         try {
             const accessToken = req.headers.authorization.split(" ")[1];
+            console.log(req.body);
             let account;
             if (req.body._id) {
                 account = await Account.findById(req.body._id);
@@ -402,6 +404,35 @@ const accountController = {
             res.status(200).json({
                 result: "success",
                 account: account,
+            });
+        } catch (error) {
+            res.status(400).send({
+                result: "failed",
+                message: error.message,
+            });
+        }
+    },
+
+    delete: async (req, res) => {
+        try {
+            const { _id } = req.query;
+            const accessToken = req.headers.authorization.split(" ")[1];
+            const reqAccount = await Account.findOne({
+                accessToken: accessToken,
+            });
+
+            const account = await Account.findById(_id);
+
+            if (reqAccount.accountLevel !== "ADMIN") {
+                return res.status(403).send({
+                    result: "failed",
+                    message: "Không có quyền thực thi",
+                });
+            }
+
+            await account.delete();
+            return res.status(200).json({
+                result: "success",
             });
         } catch (error) {
             res.status(400).send({

@@ -127,6 +127,17 @@ const tagController = {
             });
             const thisTag = await tag.findById(_id);
 
+            const checkTag = await tag.findOne({
+                name: name,
+            });
+
+            if (checkTag) {
+                return res.status(404).send({
+                    result: "failed",
+                    message: "Tên đã tồn tại",
+                });
+            }
+
             if ((!reqAccount || !reqAccount._id.equals(thisTag.account)) && reqAccount.accountLevel !== "ADMIN") {
                 return res.status(403).send({
                     result: "failed",
