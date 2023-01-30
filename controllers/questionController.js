@@ -63,7 +63,7 @@ const questionController = {
     },
 
     find: async (req, res) => {
-        let { q } = req.query;
+        let { q, tagId } = req.query;
         q = q ?? "";
         page = parseInt(req.query.page) - 1;
         limit = parseInt(req.query.limit);
@@ -71,7 +71,7 @@ const questionController = {
         dislike = parseInt(req.query.dislike) * -1;
         let sortByCreateTime = parseInt(req.query.sortByCreateTime) * -1;
         try {
-            var query = { title: { $regex: `.*${q}.*`, $options: "i" } };
+            var query = { title: { $regex: `.*${q}.*`, $options: "i" }, tagIds: { $in: [tagId] } };
             Question.find(query)
                 .populate({ path: "account", select: "avatar fullname" })
                 .populate({ path: "tagIds", select: "name" })
