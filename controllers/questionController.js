@@ -71,7 +71,12 @@ const questionController = {
         dislike = parseInt(req.query.dislike) * -1;
         let sortByCreateTime = parseInt(req.query.sortByCreateTime) * -1;
         try {
-            var query = { title: { $regex: `.*${q}.*`, $options: "i" }, tagIds: { $in: [tagId] } };
+            let query;
+            if (tagId) {
+                query = { title: { $regex: `.*${q}.*`, $options: "i" }, tagIds: { $in: [tagId] } };
+            } else {
+                query = { title: { $regex: `.*${q}.*`, $options: "i" } };
+            }
             Question.find(query)
                 .populate({ path: "account", select: "avatar fullname" })
                 .populate({ path: "tagIds", select: "name" })
