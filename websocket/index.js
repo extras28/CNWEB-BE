@@ -43,8 +43,21 @@ function bindHttpServer(httpServer) {
             if (message.type === "utf8") {
                 // console.log("Received Message: " + message.utf8Data);
                 connection.sendUTF(JSON.stringify(message.utf8Data));
-                answerController.create(message.utf8Data);
-                
+                let code = JSON.parse(message.utf8Data).code;
+                switch (code) {
+                    case "00":
+                        answerController.create(message.utf8Data);
+                        break;
+                    case "01":
+                        answerController.update(message.utf8Data);
+                        break;
+                    case "02":
+                        answerController.delete(message.utf8Data);
+                        break;
+
+                    default:
+                        break;
+                }
             } else if (message.type === "binary") {
                 console.log("Received Binary Message of " + message.binaryData.length + " bytes");
                 connection.sendBytes(JSON.stringify(message.binaryData));

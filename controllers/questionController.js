@@ -79,7 +79,7 @@ const questionController = {
             }
             Question.find(query)
                 .populate({ path: "account", select: "avatar fullname" })
-                .populate({ path: "tagIds", select: "name" })
+                .populate({ path: "tagIds", select: "name description" })
                 .sort({ dislikeCount: dislike, likeCount: like, createdAt: sortByCreateTime })
                 .skip(page * limit) //Notice here
                 .limit(limit)
