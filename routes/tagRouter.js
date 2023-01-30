@@ -12,5 +12,7 @@ router.delete("/api/v1/tag/delete", tagController.delete);
 router.put("/api/v1/tag/update", tagController.update);
 // get personally
 router.get("/api/v1/tag/find-by-person", tagController.findPersonally);
+// get detail
+router.get("/api/v1/tag/detail", tagController.detail);
 
 module.exports = router;

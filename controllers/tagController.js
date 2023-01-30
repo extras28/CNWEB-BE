@@ -248,6 +248,22 @@ const tagController = {
             });
         }
     },
+
+    detail: async (req, res) => {
+        try {
+            const { tagId } = req.query;
+            const tagDetail = await tag.findById(tagId);
+            return res.status(200).json({
+                result: "success",
+                tag: tagDetail,
+            });
+        } catch (error) {
+            res.status(400).send({
+                result: "failed",
+                message: error.message,
+            });
+        }
+    },
 };
 
 module.exports = tagController;
