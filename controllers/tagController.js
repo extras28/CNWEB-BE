@@ -185,7 +185,7 @@ const tagController = {
             let sortByCreateTime = parseInt(req.query.sortByCreateTime);
 
             if (_id) {
-                var query = { account: _id, title: { $regex: `.*${q}.*`, $options: "i" } };
+                var query = { account: _id, name: { $regex: `.*${q}.*`, $options: "i" } };
                 tag.find(query)
                     .populate({ path: "account", select: "avatar fullname" })
                     .sort({ createdAt: sortByCreateTime })
