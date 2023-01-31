@@ -5,7 +5,7 @@ const answerController = {
     create: async (data) => {
         try {
             const receivedAnswer = JSON.parse(data);
-            const newAnser = await answer.create({
+            const newAnser = await Answer.create({
                 tempId: receivedAnswer.answer.tempId,
                 account: receivedAnswer.answer.account._id,
                 content: receivedAnswer.answer.content,
@@ -25,14 +25,14 @@ const answerController = {
             const receivedAnswer = JSON.parse(data);
             console.log(receivedAnswer);
             if (receivedAnswer.answer.tempId) {
-                await answer.findOneAndUpdate(
+                await Answer.findOneAndUpdate(
                     { tempId: receivedAnswer.answer.tempId },
                     {
                         content: receivedAnswer.answer.content,
                     }
                 );
             } else {
-                await answer.findByIdAndUpdate(receivedAnswer.answer._id, { content: receivedAnswer.answer.content });
+                await Answer.findByIdAndUpdate(receivedAnswer.answer._id, { content: receivedAnswer.answer.content });
             }
         } catch (error) {
             console.log(`update answer error: ${error.message}`);
@@ -42,11 +42,14 @@ const answerController = {
     delete: async (data) => {
         try {
             const receivedAnswer = JSON.parse(data);
-            if (receivedAnswer.answer.tempId) {
-                await answer.findOneAndDelete({ tempId: receivedAnswer.answer.tempId });
-            } else {
-                await answer.findByIdAndDelete(receivedAnswer.answer._id);
-            }
+            console.log(receivedAnswer);
+            const resAnswer = await Answer.findOne({ tempId: receivedAnswer.answer.tempId });
+
+            await question.findByIdAndUpdate(receivedAnswer.answer.questionId, {
+                $pull: { answer: resAnswer._id },
+            });
+
+            await resAnswer.delete();
         } catch (error) {
             console.log(`delete answer error: ${error.message}`);
         }
