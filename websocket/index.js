@@ -54,6 +54,9 @@ function bindHttpServer(httpServer) {
                     case "02":
                         answerController.delete(message.utf8Data);
                         break;
+                    case "03":
+                        answerController.react(message.utf8Data);
+                        break;
 
                     default:
                         break;

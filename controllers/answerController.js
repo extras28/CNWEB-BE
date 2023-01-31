@@ -1,4 +1,4 @@
-const answer = require("../models/answer");
+const Answer = require("../models/answer");
 const question = require("../models/question");
 
 const answerController = {
@@ -23,6 +23,7 @@ const answerController = {
     update: async (data) => {
         try {
             const receivedAnswer = JSON.parse(data);
+            console.log(receivedAnswer);
             if (receivedAnswer.answer.tempId) {
                 await answer.findOneAndUpdate(
                     { tempId: receivedAnswer.answer.tempId },
@@ -52,81 +53,72 @@ const answerController = {
     },
 
     react: async (data) => {
-        const alreadyLike = question.likes.includes(reqAccount._id);
-        const alreadyDislike = question.dislikes.includes(reqAccount._id);
+        try {
+            const receivedAnswer = JSON.parse(data);
+            const { answer, accountId, reactType } = receivedAnswer;
 
-        if (reactType === 1 && alreadyLike) {
-            updatedQuestion = await Question.findByIdAndUpdate(
-                _id,
-                {
-                    $inc: { likeCount: -1 },
-                    $pull: { likes: reqAccount._id },
-                },
-                { new: true }
-            )
-                .populate({ path: "account", select: "avatar fullname" })
-                .populate({ path: "tagIds", select: "name" });
-        } else if (reactType == 1 && !alreadyLike) {
-            if (alreadyDislike) {
-                updatedQuestion = await Question.findByIdAndUpdate(
-                    _id,
+            const thisAnswer = await Answer.findOne({ tempId: answer.tempId });
+
+            const alreadyLike = thisAnswer.likes.includes(accountId);
+            const alreadyDislike = thisAnswer.dislikes.includes(accountId);
+
+            if (reactType === 1 && alreadyLike) {
+                await Answer.findOneAndUpdate(
+                    { tempId: answer.tempId },
                     {
-                        $inc: { likeCount: 1, dislikeCount: -1 },
-                        $push: { likes: reqAccount._id },
-                        $pull: { dislikes: reqAccount._id },
-                    },
-                    { new: true }
-                )
-                    .populate({ path: "account", select: "avatar fullname" })
-                    .populate({ path: "tagIds", select: "name" });
-            } else {
-                updatedQuestion = await Question.findByIdAndUpdate(
-                    _id,
+                        $inc: { likeCount: -1 },
+                        $pull: { likes: accountId },
+                    }
+                );
+            } else if (reactType == 1 && !alreadyLike) {
+                if (alreadyDislike) {
+                    await Answer.findOneAndUpdate(
+                        { tempId: answer.tempId },
+                        {
+                            $inc: { likeCount: 1, dislikeCount: -1 },
+                            $push: { likes: accountId },
+                            $pull: { dislikes: accountId },
+                        }
+                    );
+                } else {
+                    await Answer.findOneAndUpdate(
+                        { tempId: answer.tempId },
+                        {
+                            $inc: { likeCount: 1 },
+                            $push: { likes: accountId },
+                        }
+                    );
+                }
+            } else if (reactType == 0 && alreadyDislike) {
+                await Answer.findOneAndUpdate(
+                    { tempId: answer.tempId },
                     {
-                        $inc: { likeCount: 1 },
-                        $push: { likes: reqAccount._id },
-                    },
-                    { new: true }
-                )
-                    .populate({ path: "account", select: "avatar fullname" })
-                    .populate({ path: "tagIds", select: "name" });
+                        $inc: { dislikeCount: -1 },
+                        $pull: { dislikes: accountId },
+                    }
+                );
+            } else if (reactType == 0 && !alreadyDislike) {
+                if (alreadyLike) {
+                    await Answer.findOneAndUpdate(
+                        { tempId: answer.tempId },
+                        {
+                            $inc: { likeCount: -1, dislikeCount: 1 },
+                            $push: { dislikes: accountId },
+                            $pull: { likes: accountId },
+                        }
+                    );
+                } else {
+                    await Answer.findOneAndUpdate(
+                        { tempId: answer.tempId },
+                        {
+                            $inc: { dislikeCount: 1 },
+                            $push: { dislikes: accountId },
+                        }
+                    );
+                }
             }
-        } else if (reactType == 0 && alreadyDislike) {
-            updatedQuestion = await Question.findByIdAndUpdate(
-                _id,
-                {
-                    $inc: { dislikeCount: -1 },
-                    $pull: { dislikes: reqAccount._id },
-                },
-                { new: true }
-            )
-                .populate({ path: "account", select: "avatar fullname" })
-                .populate({ path: "tagIds", select: "name" });
-        } else if (reactType == 0 && !alreadyDislike) {
-            if (alreadyLike) {
-                updatedQuestion = await Question.findByIdAndUpdate(
-                    _id,
-                    {
-                        $inc: { likeCount: -1, dislikeCount: 1 },
-                        $push: { dislikes: reqAccount._id },
-                        $pull: { likes: reqAccount._id },
-                    },
-                    { new: true }
-                )
-                    .populate({ path: "account", select: "avatar fullname" })
-                    .populate({ path: "tagIds", select: "name" });
-            } else {
-                updatedQuestion = await Question.findByIdAndUpdate(
-                    _id,
-                    {
-                        $inc: { dislikeCount: 1 },
-                        $push: { dislikes: reqAccount._id },
-                    },
-                    { new: true }
-                )
-                    .populate({ path: "account", select: "avatar fullname" })
-                    .populate({ path: "tagIds", select: "name" });
-            }
+        } catch (error) {
+            console.log(`update answer error: ${error.message}`);
         }
     },
 };
