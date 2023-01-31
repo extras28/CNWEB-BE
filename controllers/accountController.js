@@ -63,7 +63,7 @@ const accountController = {
 
             if (!account) {
                 return res.status(404).json({
-                    result: "success",
+                    result: "failed",
                     message: "Email không đúng",
                 });
             }
